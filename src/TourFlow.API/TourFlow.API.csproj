@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <RootNamespace>TourFlow.API</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.14" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TourFlow.Application\TourFlow.Application.csproj" />
+    <ProjectReference Include="..\TourFlow.Infrastructure\TourFlow.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>
