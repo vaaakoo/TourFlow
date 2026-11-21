@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Consolidated backend phase (Milestones 1–8): implemented and verified against native SQL Server.
+Phase 2 — Angular frontend: implemented and verified against the local TourFlow API and native SQL Server. Public-repository and portfolio preparation is complete and awaiting commit approval.
 
 ## Milestones completed
 
@@ -58,7 +58,7 @@ Consolidated backend phase (Milestones 1–8): implemented and verified against 
 
 ## Next milestone (requires approval)
 
-Milestone 9 — Angular customer portal. Frontend work has not started.
+Phase 3 — production hardening, CI/CD, and deployment automation.
 
 ## Milestone 4 follow-up audit
 
@@ -98,3 +98,32 @@ Milestone 9 — Angular customer portal. Frontend work has not started.
 - Payments are simulated operational records only. There is no payment gateway and no cardholder data.
 - Assignment intervals are same-day half-open ranges. Multi-day scheduling and route/travel-time optimization are outside the current specification.
 - Reports return current aggregate rows and do not provide exports or accounting/tax reconciliation.
+
+## Phase 2 — Angular frontend
+
+- Added `frontend/` using Angular 22.3 standalone components, strict TypeScript, Angular Router lazy feature routes, signals, reactive forms, HttpClient, and Tailwind CSS 4.
+- Implemented responsive public landing, destinations, tour catalog/detail, login, and customer registration. Public pages consume the real active-only backend catalog and display an explicit empty state when development inventory is empty.
+- Implemented customer profile, tour booking, transfer booking, booking history/detail, status history, server-price display, and eligible cancellation. The UI never submits a client price.
+- Implemented role-guarded operations and administration workspaces for the dashboard, bookings, customers, destinations, tours, vehicles, drivers, resource assignments, payments, reports, and user access.
+- Implemented a mobile-first driver schedule with assigned booking details and permitted in-progress/completed status actions.
+- Added a bearer interceptor, refresh-token rotation, session restoration, logout, role guards, ProblemDetails/validation error handling, toasts, loading states, empty states, confirmation prompts, status badges, responsive tables/forms, and API URL environment configuration.
+- Added local Angular origins to Development CORS. No production secrets or credentials were added.
+- Production Angular build succeeded. Initial estimated transfer size is 89.5 kB with feature code split into lazy chunks. Four frontend unit tests passed across two test files.
+- Backend build after the CORS integration change succeeded with zero warnings and errors. The existing `TourFlow` database was already current; no migrations were applied.
+- Browser smoke validation passed against the running HTTPS API and native SQL Server: health HTTP 200, CORS preflight 204, customer login/session restoration, customer booking list with a server-priced transfer, administrator login, live dashboard aggregation, and operations booking listing.
+
+## Frontend limitations
+
+- Refresh tokens follow the existing JSON contract and are stored in tab-scoped `sessionStorage`; HttpOnly refresh cookies require a future backend contract change.
+- The backend exposes no customer payment endpoint, report export endpoint, distance-based transfer quote, or dedicated driver profile route. The frontend does not invent these capabilities.
+- Local smoke validation created development-only customer/administrator accounts and one pending transfer booking in the `TourFlow` development database.
+
+## Public repository preparation
+
+- Reviewed the complete Git working tree, configured remote, recent history, tracked files, and ignored artifacts. No generated binaries, `node_modules`, build output, local database, or `.env` file is tracked.
+- Reviewed current files and all six existing commits for secret-like content. Matches are configuration names, environment-variable references, random test keys, or explicit placeholder values; no real password, API key, JWT signing secret, private key, or test credential was found.
+- Expanded root ignore rules for frontend/.NET outputs, coverage, local environment variants, logs, caches, IDE state, temporary files, and local database formats while preserving `.env.example`.
+- Added real, optimized portfolio screenshots for the operations dashboard, tours management, and bookings management under `docs/screenshots/`.
+- Reorganized the root README for public GitHub and portfolio audiences, including architecture, roles, workflows, screenshots, secure setup, tests, limitations, and proposed repository metadata.
+- A license has not been added. MIT is recommended if the repository owner wants an open-source portfolio license.
+- Final repository-preparation verification: backend build passed with 0 warnings and 0 errors; 15 unit and 20 non-SQL integration tests passed; 12 SQL-backed tests were skipped because `TOURFLOW_TEST_SQLSERVER` was not set for this run (the same SQL-backed suite passed during the recorded native SQL Server validation). The Angular production build passed, all 4 frontend tests passed, and both NuGet and npm reported no known vulnerable packages.
