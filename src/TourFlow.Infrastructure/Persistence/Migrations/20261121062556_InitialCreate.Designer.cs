@@ -53,28 +53,6 @@ namespace TourFlow.Infrastructure.Persistence.Migrations
 
                     b.ToTable("ApplicationUsers", (string)null);
 
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("00000000-0000-0000-0000-000000000001"),
-                            CreatedAt = new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "admin@tourflow.local",
-                            Role = "Administrator"
-                        },
-                        new
-                        {
-                            Id = new Guid("00000000-0000-0000-0000-000000000002"),
-                            CreatedAt = new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "nino.beridze@tourflow.local",
-                            Role = "Customer"
-                        },
-                        new
-                        {
-                            Id = new Guid("00000000-0000-0000-0000-000000000003"),
-                            CreatedAt = new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "giorgi.kapanadze@tourflow.local",
-                            Role = "Driver"
-                        });
                 });
 
             modelBuilder.Entity("TourFlow.Domain.Entities.Booking", b =>
@@ -148,25 +126,6 @@ namespace TourFlow.Infrastructure.Persistence.Migrations
 
                     b.ToTable("Bookings", (string)null);
 
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("60000000-0000-0000-0000-000000000001"),
-                            BookingDate = new DateOnly(2026, 12, 5),
-                            BookingNumber = "TF-2026-0001",
-                            BookingType = "Tour",
-                            CreatedAt = new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified),
-                            CustomerId = new Guid("10000000-0000-0000-0000-000000000001"),
-                            DropoffLocation = "Old Town, Tbilisi",
-                            PassengerCount = 2,
-                            PickupLocation = "Freedom Square, Tbilisi",
-                            SpecialRequests = "English-speaking guide requested.",
-                            StartTime = new TimeOnly(10, 0, 0),
-                            Status = "Assigned",
-                            TotalPrice = 170.00m,
-                            TourId = new Guid("50000000-0000-0000-0000-000000000001"),
-                            UpdatedAt = new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified)
-                        });
                 });
 
             modelBuilder.Entity("TourFlow.Domain.Entities.BookingAssignment", b =>
@@ -208,18 +167,6 @@ namespace TourFlow.Infrastructure.Persistence.Migrations
 
                     b.ToTable("BookingAssignments", (string)null);
 
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("70000000-0000-0000-0000-000000000001"),
-                            AssignmentDate = new DateOnly(2026, 12, 5),
-                            BookingId = new Guid("60000000-0000-0000-0000-000000000001"),
-                            CreatedAt = new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified),
-                            DriverId = new Guid("20000000-0000-0000-0000-000000000001"),
-                            EndTime = new TimeOnly(14, 30, 0),
-                            StartTime = new TimeOnly(9, 45, 0),
-                            VehicleId = new Guid("30000000-0000-0000-0000-000000000001")
-                        });
                 });
 
             modelBuilder.Entity("TourFlow.Domain.Entities.BookingStatusHistory", b =>
@@ -264,18 +211,6 @@ namespace TourFlow.Infrastructure.Persistence.Migrations
 
                     b.ToTable("BookingStatusHistories", (string)null);
 
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("80000000-0000-0000-0000-000000000001"),
-                            BookingId = new Guid("60000000-0000-0000-0000-000000000001"),
-                            ChangedAt = new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified),
-                            ChangedByUserId = new Guid("00000000-0000-0000-0000-000000000001"),
-                            Comment = "Driver and vehicle assigned for the tour.",
-                            CreatedAt = new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified),
-                            NewStatus = "Assigned",
-                            PreviousStatus = "Confirmed"
-                        });
                 });
 
             modelBuilder.Entity("TourFlow.Domain.Entities.Customer", b =>
@@ -316,16 +251,6 @@ namespace TourFlow.Infrastructure.Persistence.Migrations
 
                     b.ToTable("Customers", (string)null);
 
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("10000000-0000-0000-0000-000000000001"),
-                            CreatedAt = new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified),
-                            FirstName = "Nino",
-                            LastName = "Beridze",
-                            PhoneNumber = "+995555010101",
-                            UserId = new Guid("00000000-0000-0000-0000-000000000002")
-                        });
                 });
 
             modelBuilder.Entity("TourFlow.Domain.Entities.Destination", b =>
@@ -369,17 +294,6 @@ namespace TourFlow.Infrastructure.Persistence.Migrations
 
                     b.ToTable("Destinations", (string)null);
 
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("40000000-0000-0000-0000-000000000001"),
-                            Country = "Georgia",
-                            CreatedAt = new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified),
-                            Description = "Historic capital city with old-town, cultural, and culinary experiences.",
-                            ImageUrl = "https://images.example.test/tbilisi.jpg",
-                            IsActive = true,
-                            Name = "Tbilisi"
-                        });
                 });
 
             modelBuilder.Entity("TourFlow.Domain.Entities.Driver", b =>
@@ -431,18 +345,6 @@ namespace TourFlow.Infrastructure.Persistence.Migrations
 
                     b.ToTable("Drivers", (string)null);
 
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("20000000-0000-0000-0000-000000000001"),
-                            CreatedAt = new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified),
-                            FirstName = "Giorgi",
-                            IsActive = true,
-                            LastName = "Kapanadze",
-                            LicenseNumber = "GE-TBL-DR-1001",
-                            PhoneNumber = "+995555020202",
-                            UserId = new Guid("00000000-0000-0000-0000-000000000003")
-                        });
                 });
 
             modelBuilder.Entity("TourFlow.Domain.Entities.Payment", b =>
@@ -490,19 +392,6 @@ namespace TourFlow.Infrastructure.Persistence.Migrations
 
                     b.ToTable("Payments", (string)null);
 
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("90000000-0000-0000-0000-000000000001"),
-                            Amount = 170.00m,
-                            BookingId = new Guid("60000000-0000-0000-0000-000000000001"),
-                            CreatedAt = new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified),
-                            PaidAt = new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified),
-                            PaymentMethod = "Card",
-                            Status = "Paid",
-                            TransactionReference = "DEMO-TF-2026-0001",
-                            UpdatedAt = new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified)
-                        });
                 });
 
             modelBuilder.Entity("TourFlow.Domain.Entities.RefreshToken", b =>
@@ -594,21 +483,6 @@ namespace TourFlow.Infrastructure.Persistence.Migrations
 
                     b.ToTable("Tours", (string)null);
 
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("50000000-0000-0000-0000-000000000001"),
-                            CreatedAt = new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified),
-                            Description = "A guided walking and driving introduction to Tbilisi's historic landmarks.",
-                            DestinationId = new Guid("40000000-0000-0000-0000-000000000001"),
-                            Duration = 144000000000L,
-                            ImageUrl = "https://images.example.test/tbilisi-old-town.jpg",
-                            IsActive = true,
-                            MaxPassengers = 16,
-                            Name = "Tbilisi Old Town Discovery",
-                            Price = 85.00m,
-                            TourType = "Sightseeing"
-                        });
                 });
 
             modelBuilder.Entity("TourFlow.Domain.Entities.Vehicle", b =>
@@ -656,18 +530,6 @@ namespace TourFlow.Infrastructure.Persistence.Migrations
 
                     b.ToTable("Vehicles", (string)null);
 
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("30000000-0000-0000-0000-000000000001"),
-                            CreatedAt = new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified),
-                            Description = "Comfortable airport and group-transfer van.",
-                            IsActive = true,
-                            Name = "Mercedes Sprinter",
-                            PassengerCapacity = 16,
-                            RegistrationNumber = "TF-001-TF",
-                            VehicleType = "Van"
-                        });
                 });
 
             modelBuilder.Entity("TourFlow.Domain.Entities.Booking", b =>

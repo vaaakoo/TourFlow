@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Milestone 3 — EF Core, database configuration, migrations, and seed data: complete with database-runtime validation pending Docker Desktop.
+Milestone 4 — authentication, JWT, and authorization: implemented and partially verified.
 
 ## Milestones completed
 
@@ -40,6 +40,22 @@ Milestone 3 — EF Core, database configuration, migrations, and seed data: comp
 - `dotnet restore TourFlow.sln`, `dotnet build TourFlow.sln --no-restore`, and initial migration generation succeeded in Milestone 3.
 - Docker Desktop is installed but its daemon was unavailable on 2026-11-21. Database update, seeded-data verification, and SQL Server health-check runtime validation remain pending until the daemon is started.
 
-## Next step (requires approval)
+## Milestone 3 audit
 
-Milestone 4: authentication, JWT, refresh tokens, and authorization. Identity credential persistence and safe development administrator credential seeding begin in that milestone; booking assignment overlap enforcement remains in the later assignment workflow milestone.
+- Verified project references, SQL Server mappings, schema constraints, timestamps, money precision, and design-time migration consistency. The solution built cleanly, and EF generated an idempotent SQL script.
+- Removed unconditional demo inserts from `InitialCreate` for fresh installs. Databases that already applied the original migration retain existing data. Demo inserts now require Development and `DevelopmentData__Enabled=true`, and the deterministic booking ID guards repeat runs.
+- Added `ProtectBookingRecords` to replace cascading booking foreign keys with restrictive keys for payments, assignments, and status history.
+- SQL Server application, migration replay, and live seed verification remain pending because the Docker daemon is unavailable and no local SQL Server instance is listening.
+
+## Milestone 4 implementation and validation
+
+- Integrated Identity with the existing `ApplicationUsers` table and operational user relationships. `AddIdentityAuthentication` adds credential and normalized lookup columns, Identity tables, five roles, and refresh-token family tracking. It backfills the existing user records and role memberships and invalidates any pre-existing refresh tokens.
+- Added registration, login, refresh, logout, authenticated profile, reset foundation, and administrator user management. Authorization uses persisted Identity roles, server-side JWT account validation, and an administrator guard for account-access changes. Public registration creates customer accounts only.
+- Refresh tokens are opaque, hashed at rest, and rotated transactionally. SQL Server per-account locks serialize rotation, logout, and account updates. Reuse revokes the affected family.
+- The solution builds with zero warnings and errors. Three unit tests and 13 HTTP integration tests passed. Three SQL-backed tests were skipped because `TOURFLOW_TEST_SQLSERVER` is unset. EF reported no pending model changes and generated an idempotent script for all three migrations. NuGet reported no vulnerable packages.
+- The development API started and served OpenAPI with the JWT bearer scheme. The health endpoint returned HTTP 503 with SQL Server unavailable. An EF database update targeting a dedicated local validation database timed out before connecting. The live Identity migration, database-backed auth flows, refresh concurrency, and healthy SQL Server response remain unverified.
+- Password reset requires a configured delivery provider and a verified email. The default provider leaves delivery disabled. Administrator credentials are supplied only for an explicit Development bootstrap command.
+
+## Next milestone (requires approval)
+
+Milestone 5 — Tours, Destinations, Customers, Vehicles and Drivers. The Milestone 4 audit passed build, design-time migration checks, and HTTP checks. Its database pass is pending live SQL Server verification. Run the three SQL-backed tests and verify a healthy database response before starting Milestone 5.

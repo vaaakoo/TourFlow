@@ -12,7 +12,7 @@ public sealed class RefreshToken : Entity
         TokenHash = null!;
     }
 
-    public RefreshToken(ApplicationUser user, string tokenHash, DateTime expiresAt)
+    public RefreshToken(ApplicationUser user, string tokenHash, DateTime expiresAt, Guid? familyId = null)
     {
         if (string.IsNullOrWhiteSpace(tokenHash))
         {
@@ -33,11 +33,22 @@ public sealed class RefreshToken : Entity
         UserId = user.Id;
         TokenHash = tokenHash;
         ExpiresAt = expiresAt;
+        FamilyId = familyId ?? Id;
         user.AddRefreshToken(this);
     }
 
     /// <summary>Gets the owning user identifier.</summary>
     public Guid UserId { get; private set; }
+
+    public Guid FamilyId { get; private set; }
+
+    public bool WasRotated { get; private set; }
+
+    public void MarkRotated(DateTime utcNow)
+    {
+        Revoke(utcNow);
+        WasRotated = true;
+    }
 
     /// <summary>Gets the user that owns the token.</summary>
     public ApplicationUser User { get; private set; }

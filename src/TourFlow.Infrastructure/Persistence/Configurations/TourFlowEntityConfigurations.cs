@@ -9,8 +9,17 @@ internal sealed class ApplicationUserConfiguration : IEntityTypeConfiguration<Ap
     public void Configure(EntityTypeBuilder<ApplicationUser> builder)
     {
         builder.ToTable("ApplicationUsers");
-        builder.ConfigureEntity();
+        builder.HasKey(user => user.Id);
+        builder.Property(user => user.Id).ValueGeneratedNever();
+        builder.Property(user => user.CreatedAt).HasColumnType("datetime2").HasConversion(UtcDateTimeConverter.Instance);
+        builder.Property(user => user.UpdatedAt).HasColumnType("datetime2").HasConversion(UtcDateTimeConverter.NullableInstance);
         builder.Property(user => user.Email).HasMaxLength(256).IsRequired();
+        builder.Property(user => user.UserName).IsRequired();
+        builder.Property(user => user.NormalizedEmail).IsRequired();
+        builder.Property(user => user.NormalizedUserName).IsRequired();
+        builder.Property(user => user.StaffFirstName).HasMaxLength(100);
+        builder.Property(user => user.StaffLastName).HasMaxLength(100);
+        builder.HasIndex(user => user.NormalizedEmail).IsUnique();
         builder.Property(user => user.Role).HasConversion<string>().HasMaxLength(32).IsRequired();
         builder.HasIndex(user => user.Email).IsUnique();
         builder.HasOne(user => user.Customer).WithOne(customer => customer.User)
@@ -129,11 +138,11 @@ internal sealed class BookingConfiguration : IEntityTypeConfiguration<Booking>
         builder.HasIndex(booking => booking.CustomerId);
         builder.HasIndex(booking => booking.TourId);
         builder.HasMany(booking => booking.Assignments).WithOne(assignment => assignment.Booking)
-            .HasForeignKey(assignment => assignment.BookingId).OnDelete(DeleteBehavior.Cascade);
+            .HasForeignKey(assignment => assignment.BookingId).OnDelete(DeleteBehavior.Restrict);
         builder.HasMany(booking => booking.StatusHistory).WithOne(history => history.Booking)
-            .HasForeignKey(history => history.BookingId).OnDelete(DeleteBehavior.Cascade);
+            .HasForeignKey(history => history.BookingId).OnDelete(DeleteBehavior.Restrict);
         builder.HasMany(booking => booking.Payments).WithOne(payment => payment.Booking)
-            .HasForeignKey(payment => payment.BookingId).OnDelete(DeleteBehavior.Cascade);
+            .HasForeignKey(payment => payment.BookingId).OnDelete(DeleteBehavior.Restrict);
     }
 }
 
@@ -194,6 +203,7 @@ internal sealed class RefreshTokenConfiguration : IEntityTypeConfiguration<Refre
         builder.Property(token => token.ExpiresAt).HasColumnType("datetime2").HasConversion(UtcDateTimeConverter.Instance).IsRequired();
         builder.Property(token => token.RevokedAt).HasColumnType("datetime2").HasConversion(UtcDateTimeConverter.NullableInstance);
         builder.HasIndex(token => token.TokenHash).IsUnique();
+        builder.HasIndex(token => new { token.UserId, token.FamilyId, token.RevokedAt });
         builder.HasIndex(token => new { token.UserId, token.ExpiresAt, token.RevokedAt });
     }
 }

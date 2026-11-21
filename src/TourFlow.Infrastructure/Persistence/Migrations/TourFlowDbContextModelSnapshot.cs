@@ -22,10 +22,185 @@ namespace TourFlow.Infrastructure.Persistence.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("NormalizedName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasDatabaseName("RoleNameIndex")
+                        .HasFilter("[NormalizedName] IS NOT NULL");
+
+                    b.ToTable("AspNetRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("10000000-0000-0000-0000-000000000001"),
+                            ConcurrencyStamp = "10000000-0000-0000-0000-000000000001",
+                            Name = "ADMINISTRATOR",
+                            NormalizedName = "ADMINISTRATOR"
+                        },
+                        new
+                        {
+                            Id = new Guid("10000000-0000-0000-0000-000000000002"),
+                            ConcurrencyStamp = "10000000-0000-0000-0000-000000000002",
+                            Name = "MANAGER",
+                            NormalizedName = "MANAGER"
+                        },
+                        new
+                        {
+                            Id = new Guid("10000000-0000-0000-0000-000000000003"),
+                            ConcurrencyStamp = "10000000-0000-0000-0000-000000000003",
+                            Name = "OPERATOR",
+                            NormalizedName = "OPERATOR"
+                        },
+                        new
+                        {
+                            Id = new Guid("10000000-0000-0000-0000-000000000004"),
+                            ConcurrencyStamp = "10000000-0000-0000-0000-000000000004",
+                            Name = "DRIVER",
+                            NormalizedName = "DRIVER"
+                        },
+                        new
+                        {
+                            Id = new Guid("10000000-0000-0000-0000-000000000005"),
+                            ConcurrencyStamp = "10000000-0000-0000-0000-000000000005",
+                            Name = "CUSTOMER",
+                            NormalizedName = "CUSTOMER"
+                        });
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetRoleClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
+                {
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ProviderKey")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ProviderDisplayName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("LoginProvider", "ProviderKey");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserLogins", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetUserRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("UserId", "LoginProvider", "Name");
+
+                    b.ToTable("AspNetUserTokens", (string)null);
+                });
+
             modelBuilder.Entity("TourFlow.Domain.Entities.ApplicationUser", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -35,43 +210,78 @@ namespace TourFlow.Infrastructure.Persistence.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDisabled")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("NormalizedEmail")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("NormalizedUserName")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Role")
                         .IsRequired()
                         .HasMaxLength(32)
                         .HasColumnType("nvarchar(32)");
 
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("StaffFirstName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("StaffLastName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("ApplicationUsers", (string)null);
+                    b.HasIndex("NormalizedEmail")
+                        .IsUnique()
+                        .HasDatabaseName("EmailIndex");
 
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("00000000-0000-0000-0000-000000000001"),
-                            CreatedAt = new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "admin@tourflow.local",
-                            Role = "Administrator"
-                        },
-                        new
-                        {
-                            Id = new Guid("00000000-0000-0000-0000-000000000002"),
-                            CreatedAt = new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "nino.beridze@tourflow.local",
-                            Role = "Customer"
-                        },
-                        new
-                        {
-                            Id = new Guid("00000000-0000-0000-0000-000000000003"),
-                            CreatedAt = new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "giorgi.kapanadze@tourflow.local",
-                            Role = "Driver"
-                        });
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("UserNameIndex");
+
+                    b.ToTable("ApplicationUsers", (string)null);
                 });
 
             modelBuilder.Entity("TourFlow.Domain.Entities.Booking", b =>
@@ -144,26 +354,6 @@ namespace TourFlow.Infrastructure.Persistence.Migrations
                     b.HasIndex("BookingDate", "Status");
 
                     b.ToTable("Bookings", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("60000000-0000-0000-0000-000000000001"),
-                            BookingDate = new DateOnly(2026, 12, 5),
-                            BookingNumber = "TF-2026-0001",
-                            BookingType = "Tour",
-                            CreatedAt = new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified),
-                            CustomerId = new Guid("10000000-0000-0000-0000-000000000001"),
-                            DropoffLocation = "Old Town, Tbilisi",
-                            PassengerCount = 2,
-                            PickupLocation = "Freedom Square, Tbilisi",
-                            SpecialRequests = "English-speaking guide requested.",
-                            StartTime = new TimeOnly(10, 0, 0),
-                            Status = "Assigned",
-                            TotalPrice = 170.00m,
-                            TourId = new Guid("50000000-0000-0000-0000-000000000001"),
-                            UpdatedAt = new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified)
-                        });
                 });
 
             modelBuilder.Entity("TourFlow.Domain.Entities.BookingAssignment", b =>
@@ -204,19 +394,6 @@ namespace TourFlow.Infrastructure.Persistence.Migrations
                     b.HasIndex("VehicleId", "AssignmentDate", "StartTime", "EndTime");
 
                     b.ToTable("BookingAssignments", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("70000000-0000-0000-0000-000000000001"),
-                            AssignmentDate = new DateOnly(2026, 12, 5),
-                            BookingId = new Guid("60000000-0000-0000-0000-000000000001"),
-                            CreatedAt = new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified),
-                            DriverId = new Guid("20000000-0000-0000-0000-000000000001"),
-                            EndTime = new TimeOnly(14, 30, 0),
-                            StartTime = new TimeOnly(9, 45, 0),
-                            VehicleId = new Guid("30000000-0000-0000-0000-000000000001")
-                        });
                 });
 
             modelBuilder.Entity("TourFlow.Domain.Entities.BookingStatusHistory", b =>
@@ -260,19 +437,6 @@ namespace TourFlow.Infrastructure.Persistence.Migrations
                     b.HasIndex("BookingId", "ChangedAt");
 
                     b.ToTable("BookingStatusHistories", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("80000000-0000-0000-0000-000000000001"),
-                            BookingId = new Guid("60000000-0000-0000-0000-000000000001"),
-                            ChangedAt = new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified),
-                            ChangedByUserId = new Guid("00000000-0000-0000-0000-000000000001"),
-                            Comment = "Driver and vehicle assigned for the tour.",
-                            CreatedAt = new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified),
-                            NewStatus = "Assigned",
-                            PreviousStatus = "Confirmed"
-                        });
                 });
 
             modelBuilder.Entity("TourFlow.Domain.Entities.Customer", b =>
@@ -312,17 +476,6 @@ namespace TourFlow.Infrastructure.Persistence.Migrations
                     b.HasIndex("LastName", "FirstName");
 
                     b.ToTable("Customers", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("10000000-0000-0000-0000-000000000001"),
-                            CreatedAt = new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified),
-                            FirstName = "Nino",
-                            LastName = "Beridze",
-                            PhoneNumber = "+995555010101",
-                            UserId = new Guid("00000000-0000-0000-0000-000000000002")
-                        });
                 });
 
             modelBuilder.Entity("TourFlow.Domain.Entities.Destination", b =>
@@ -365,18 +518,6 @@ namespace TourFlow.Infrastructure.Persistence.Migrations
                     b.HasIndex("IsActive", "Name");
 
                     b.ToTable("Destinations", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("40000000-0000-0000-0000-000000000001"),
-                            Country = "Georgia",
-                            CreatedAt = new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified),
-                            Description = "Historic capital city with old-town, cultural, and culinary experiences.",
-                            ImageUrl = "https://images.example.test/tbilisi.jpg",
-                            IsActive = true,
-                            Name = "Tbilisi"
-                        });
                 });
 
             modelBuilder.Entity("TourFlow.Domain.Entities.Driver", b =>
@@ -427,19 +568,6 @@ namespace TourFlow.Infrastructure.Persistence.Migrations
                     b.HasIndex("IsActive", "LastName", "FirstName");
 
                     b.ToTable("Drivers", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("20000000-0000-0000-0000-000000000001"),
-                            CreatedAt = new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified),
-                            FirstName = "Giorgi",
-                            IsActive = true,
-                            LastName = "Kapanadze",
-                            LicenseNumber = "GE-TBL-DR-1001",
-                            PhoneNumber = "+995555020202",
-                            UserId = new Guid("00000000-0000-0000-0000-000000000003")
-                        });
                 });
 
             modelBuilder.Entity("TourFlow.Domain.Entities.Payment", b =>
@@ -486,20 +614,6 @@ namespace TourFlow.Infrastructure.Persistence.Migrations
                         .HasFilter("[TransactionReference] IS NOT NULL");
 
                     b.ToTable("Payments", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("90000000-0000-0000-0000-000000000001"),
-                            Amount = 170.00m,
-                            BookingId = new Guid("60000000-0000-0000-0000-000000000001"),
-                            CreatedAt = new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified),
-                            PaidAt = new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified),
-                            PaymentMethod = "Card",
-                            Status = "Paid",
-                            TransactionReference = "DEMO-TF-2026-0001",
-                            UpdatedAt = new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified)
-                        });
                 });
 
             modelBuilder.Entity("TourFlow.Domain.Entities.RefreshToken", b =>
@@ -512,6 +626,9 @@ namespace TourFlow.Infrastructure.Persistence.Migrations
 
                     b.Property<DateTime>("ExpiresAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<Guid>("FamilyId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("RevokedAt")
                         .HasColumnType("datetime2");
@@ -527,12 +644,17 @@ namespace TourFlow.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<bool>("WasRotated")
+                        .HasColumnType("bit");
+
                     b.HasKey("Id");
 
                     b.HasIndex("TokenHash")
                         .IsUnique();
 
                     b.HasIndex("UserId", "ExpiresAt", "RevokedAt");
+
+                    b.HasIndex("UserId", "FamilyId", "RevokedAt");
 
                     b.ToTable("RefreshTokens", (string)null);
                 });
@@ -590,22 +712,6 @@ namespace TourFlow.Infrastructure.Persistence.Migrations
                     b.HasIndex("DestinationId", "IsActive", "TourType");
 
                     b.ToTable("Tours", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("50000000-0000-0000-0000-000000000001"),
-                            CreatedAt = new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified),
-                            Description = "A guided walking and driving introduction to Tbilisi's historic landmarks.",
-                            DestinationId = new Guid("40000000-0000-0000-0000-000000000001"),
-                            Duration = 144000000000L,
-                            ImageUrl = "https://images.example.test/tbilisi-old-town.jpg",
-                            IsActive = true,
-                            MaxPassengers = 16,
-                            Name = "Tbilisi Old Town Discovery",
-                            Price = 85.00m,
-                            TourType = "Sightseeing"
-                        });
                 });
 
             modelBuilder.Entity("TourFlow.Domain.Entities.Vehicle", b =>
@@ -652,19 +758,57 @@ namespace TourFlow.Infrastructure.Persistence.Migrations
                     b.HasIndex("IsActive", "VehicleType");
 
                     b.ToTable("Vehicles", (string)null);
+                });
 
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("30000000-0000-0000-0000-000000000001"),
-                            CreatedAt = new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified),
-                            Description = "Comfortable airport and group-transfer van.",
-                            IsActive = true,
-                            Name = "Mercedes Sprinter",
-                            PassengerCapacity = 16,
-                            RegistrationNumber = "TF-001-TF",
-                            VehicleType = "Van"
-                        });
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
+                {
+                    b.HasOne("TourFlow.Domain.Entities.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
+                {
+                    b.HasOne("TourFlow.Domain.Entities.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TourFlow.Domain.Entities.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
+                {
+                    b.HasOne("TourFlow.Domain.Entities.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("TourFlow.Domain.Entities.Booking", b =>
@@ -690,7 +834,7 @@ namespace TourFlow.Infrastructure.Persistence.Migrations
                     b.HasOne("TourFlow.Domain.Entities.Booking", "Booking")
                         .WithMany("Assignments")
                         .HasForeignKey("BookingId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("TourFlow.Domain.Entities.Driver", "Driver")
@@ -717,7 +861,7 @@ namespace TourFlow.Infrastructure.Persistence.Migrations
                     b.HasOne("TourFlow.Domain.Entities.Booking", "Booking")
                         .WithMany("StatusHistory")
                         .HasForeignKey("BookingId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("TourFlow.Domain.Entities.ApplicationUser", null)
@@ -756,7 +900,7 @@ namespace TourFlow.Infrastructure.Persistence.Migrations
                     b.HasOne("TourFlow.Domain.Entities.Booking", "Booking")
                         .WithMany("Payments")
                         .HasForeignKey("BookingId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Booking");

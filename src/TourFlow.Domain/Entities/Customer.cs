@@ -42,7 +42,7 @@ public sealed class Customer : Entity
     public string PhoneNumber { get; private set; }
 
     /// <summary>Gets the contact email from the associated authenticated user without duplicating it.</summary>
-    public string Email => User.Email;
+    public string Email => User.Email!;
 
     /// <summary>Gets the customer's bookings.</summary>
     public IReadOnlyCollection<Booking> Bookings => _bookings.AsReadOnly();

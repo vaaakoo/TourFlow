@@ -1,6 +1,6 @@
 # Domain database design
 
-This diagram reflects the EF Core schema implemented in Milestone 3. The initial migration is `InitialCreate`; it includes deterministic development data but no authentication credentials.
+The operational schema uses `InitialCreate` and `ProtectBookingRecords`. `AddIdentityAuthentication` extends the same user table with Identity and adds role membership and refresh-token family tracking. Demo data runs through opt-in Development seeding.
 
 ```mermaid
 erDiagram
@@ -8,6 +8,8 @@ erDiagram
     APPLICATION_USER ||--o| DRIVER : has_profile
     APPLICATION_USER ||--o{ REFRESH_TOKEN : owns
     APPLICATION_USER ||--o{ BOOKING_STATUS_HISTORY : changes
+    APPLICATION_USER ||--o{ ASPNET_USER_ROLE : has_membership
+    ASPNET_ROLE ||--o{ ASPNET_USER_ROLE : grants
     CUSTOMER ||--o{ BOOKING : creates
     DESTINATION ||--o{ TOUR : contains
     TOUR o|--o{ BOOKING : booked_for
@@ -20,7 +22,17 @@ erDiagram
     APPLICATION_USER {
         guid Id PK
         string Email UK
+        string NormalizedEmail UK
+        string NormalizedUserName UK
         enum Role
+    }
+    ASPNET_ROLE {
+        guid Id PK
+        string NormalizedName UK
+    }
+    ASPNET_USER_ROLE {
+        guid UserId PK, FK
+        guid RoleId PK, FK
     }
     CUSTOMER {
         guid Id PK
@@ -69,6 +81,7 @@ erDiagram
     REFRESH_TOKEN {
         guid Id PK
         guid UserId FK
+        guid FamilyId
         string TokenHash UK
     }
 ```
@@ -79,6 +92,7 @@ erDiagram
 - `Booking.TourId` is nullable only for `Transfer` bookings. A `Tour` booking requires a tour at the domain level.
 - Unique constraints are implemented for `ApplicationUser.Email`, `Customer.UserId`, `Driver.UserId`, `Driver.LicenseNumber`, `Vehicle.RegistrationNumber`, `Booking.BookingNumber`, `Payment.TransactionReference` when present, and `RefreshToken.TokenHash`.
 - Operational indexes are implemented for active tour/destination filters, customer booking history, booking date/status, and driver/vehicle assignment schedules. The scheduling indexes support overlap queries; interval-overlap enforcement remains an application/database transaction concern for a later operational milestone.
-- Deleting a booking cascades only to its status history, payments, and assignments. Customers, tours, drivers, vehicles, destinations, users, and status-change actors are protected from deletion while referenced.
+- Booking status history, payment and assignment foreign keys prevent deletion of referenced bookings. Customers, tours, drivers, vehicles, destinations, users, and status-change actors are also protected from deletion while operational records reference them.
 - Monetary values (`Tour.Price`, `Booking.TotalPrice`, and `Payment.Amount`) use SQL Server `decimal(18,2)`. `DateOnly` and `TimeOnly` are stored as `date` and `time(0)`; tour duration is stored as ticks in `bigint` to avoid SQL Server's 24-hour `time` limit.
-- The Domain entities contain private materialization constructors only; public constructors and behaviors continue to enforce domain invariants.
+- Private materialization constructors support EF Core. Public constructors retain domain validation. `ApplicationUser` derives from the lightweight Identity user model so profile relationships and Identity credentials share the same user key.
+- The refresh-token table indexes hashed tokens and user/session families. SQL Server transaction-owned per-user locks serialize token rotation and revocation.

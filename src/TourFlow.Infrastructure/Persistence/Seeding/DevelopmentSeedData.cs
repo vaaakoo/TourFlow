@@ -1,155 +1,83 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using TourFlow.Domain.Common;
 using TourFlow.Domain.Entities;
 using TourFlow.Domain.Enums;
 
 namespace TourFlow.Infrastructure.Persistence.Seeding;
 
-/// <summary>Provides deterministic, non-secret development records for the initial schema.</summary>
 internal static class DevelopmentSeedData
 {
+    private static readonly Guid BookingId = Guid.Parse("60000000-0000-0000-0000-000000000001");
     private static readonly DateTime SeededAt = new(2026, 11, 21, 9, 0, 0, DateTimeKind.Utc);
 
-    private static readonly Guid AdministratorUserId = Guid.Parse("00000000-0000-0000-0000-000000000001");
-    private static readonly Guid CustomerUserId = Guid.Parse("00000000-0000-0000-0000-000000000002");
-    private static readonly Guid DriverUserId = Guid.Parse("00000000-0000-0000-0000-000000000003");
-    private static readonly Guid CustomerId = Guid.Parse("10000000-0000-0000-0000-000000000001");
-    private static readonly Guid DriverId = Guid.Parse("20000000-0000-0000-0000-000000000001");
-    private static readonly Guid VehicleId = Guid.Parse("30000000-0000-0000-0000-000000000001");
-    private static readonly Guid DestinationId = Guid.Parse("40000000-0000-0000-0000-000000000001");
-    private static readonly Guid TourId = Guid.Parse("50000000-0000-0000-0000-000000000001");
-    private static readonly Guid BookingId = Guid.Parse("60000000-0000-0000-0000-000000000001");
-    private static readonly Guid AssignmentId = Guid.Parse("70000000-0000-0000-0000-000000000001");
-    private static readonly Guid HistoryId = Guid.Parse("80000000-0000-0000-0000-000000000001");
-    private static readonly Guid PaymentId = Guid.Parse("90000000-0000-0000-0000-000000000001");
-
-    internal static void SeedDevelopmentData(this ModelBuilder modelBuilder)
+    internal static void Configure(DbContextOptionsBuilder options)
     {
-        modelBuilder.Entity<ApplicationUser>().HasData(
-            new { Id = AdministratorUserId, Email = "admin@tourflow.local", Role = UserRole.Administrator, CreatedAt = SeededAt, UpdatedAt = (DateTime?)null },
-            new { Id = CustomerUserId, Email = "nino.beridze@tourflow.local", Role = UserRole.Customer, CreatedAt = SeededAt, UpdatedAt = (DateTime?)null },
-            new { Id = DriverUserId, Email = "giorgi.kapanadze@tourflow.local", Role = UserRole.Driver, CreatedAt = SeededAt, UpdatedAt = (DateTime?)null });
-
-        modelBuilder.Entity<Customer>().HasData(new
+        options.UseSeeding((context, _) =>
         {
-            Id = CustomerId,
-            UserId = CustomerUserId,
-            FirstName = "Nino",
-            LastName = "Beridze",
-            PhoneNumber = "+995555010101",
-            CreatedAt = SeededAt,
-            UpdatedAt = (DateTime?)null
+            var db = (TourFlowDbContext)context;
+            if (!db.Bookings.Any(booking => booking.Id == BookingId))
+            {
+                AddDemo(db);
+                db.SaveChanges();
+            }
         });
-
-        modelBuilder.Entity<Driver>().HasData(new
+        options.UseAsyncSeeding(async (context, _, cancellationToken) =>
         {
-            Id = DriverId,
-            UserId = DriverUserId,
-            FirstName = "Giorgi",
-            LastName = "Kapanadze",
-            PhoneNumber = "+995555020202",
-            LicenseNumber = "GE-TBL-DR-1001",
-            IsActive = true,
-            CreatedAt = SeededAt,
-            UpdatedAt = (DateTime?)null
+            var db = (TourFlowDbContext)context;
+            if (!await db.Bookings.AnyAsync(booking => booking.Id == BookingId, cancellationToken))
+            {
+                AddDemo(db);
+                await db.SaveChangesAsync(cancellationToken);
+            }
         });
+    }
 
-        modelBuilder.Entity<Vehicle>().HasData(new
+    private static void AddDemo(TourFlowDbContext db)
+    {
+        var customerUser = DemoUser(db, "nino.beridze@example.test", UserRole.Customer, "00000000-0000-0000-0000-000000000002");
+        var driverUser = DemoUser(db, "giorgi.kapanadze@example.test", UserRole.Driver, "00000000-0000-0000-0000-000000000003");
+        var customer = SetIdentity(db, new Customer(customerUser, "Nino", "Beridze", "+995555010101"), "10000000-0000-0000-0000-000000000001");
+        var driver = SetIdentity(db, new Driver(driverUser, "Giorgi", "Kapanadze", "+995555020202", "GE-TBL-DR-1001"), "20000000-0000-0000-0000-000000000001");
+        var vehicle = SetIdentity(db, new Vehicle("Mercedes Sprinter", "TF-001-TF", VehicleType.Van, 16), "30000000-0000-0000-0000-000000000001");
+        var destination = SetIdentity(db, new Destination("Tbilisi", "Georgia"), "40000000-0000-0000-0000-000000000001");
+        var tour = SetIdentity(db, new Tour(destination, "Tbilisi Old Town Discovery", "Guided historic landmarks tour.", TimeSpan.FromHours(4), 85m, 16, TourType.Sightseeing), "50000000-0000-0000-0000-000000000001");
+        var serviceDate = new DateOnly(2026, 12, 5);
+        var booking = SetIdentity(db, Booking.CreateTourBooking(customer, tour, "TF-2026-0001", serviceDate, new TimeOnly(10, 0), 2, "Freedom Square, Tbilisi"), BookingId.ToString());
+        booking.TransitionTo(BookingStatus.Confirmed, customerUser.Id);
+        var assignment = new BookingAssignment(booking, driver, vehicle, serviceDate, new TimeOnly(9, 45), new TimeOnly(14, 30));
+        SetIdentity(db, assignment, "70000000-0000-0000-0000-000000000001");
+        booking.TransitionTo(BookingStatus.Assigned, driverUser.Id, "Driver and vehicle assigned.");
+        var historyIndex = 0;
+        foreach (var history in booking.StatusHistory)
         {
-            Id = VehicleId,
-            Name = "Mercedes Sprinter",
-            RegistrationNumber = "TF-001-TF",
-            VehicleType = VehicleType.Van,
-            PassengerCapacity = 16,
-            Description = "Comfortable airport and group-transfer van.",
-            IsActive = true,
-            CreatedAt = SeededAt,
-            UpdatedAt = (DateTime?)null
-        });
+            SetIdentity(db, history, historyIndex++ == 0
+                ? "80000000-0000-0000-0000-000000000001"
+                : "80000000-0000-0000-0000-000000000002");
+            db.Entry(history).Property(record => record.ChangedAt).CurrentValue = SeededAt;
+        }
 
-        modelBuilder.Entity<Destination>().HasData(new
-        {
-            Id = DestinationId,
-            Name = "Tbilisi",
-            Country = "Georgia",
-            Description = "Historic capital city with old-town, cultural, and culinary experiences.",
-            ImageUrl = "https://images.example.test/tbilisi.jpg",
-            IsActive = true,
-            CreatedAt = SeededAt,
-            UpdatedAt = (DateTime?)null
-        });
+        var payment = SetIdentity(db, new Payment(booking, 170m, PaymentMethod.Card), "90000000-0000-0000-0000-000000000001");
+        payment.MarkPaid("DEMO-TF-2026-0001", SeededAt);
+        db.Entry(booking).Property(record => record.UpdatedAt).CurrentValue = SeededAt;
+        db.Bookings.Add(booking);
+        db.UserRoles.AddRange(
+            new IdentityUserRole<Guid> { UserId = customerUser.Id, RoleId = Guid.Parse("10000000-0000-0000-0000-000000000005") },
+            new IdentityUserRole<Guid> { UserId = driverUser.Id, RoleId = Guid.Parse("10000000-0000-0000-0000-000000000004") });
+    }
 
-        modelBuilder.Entity<Tour>().HasData(new
-        {
-            Id = TourId,
-            DestinationId,
-            Name = "Tbilisi Old Town Discovery",
-            Description = "A guided walking and driving introduction to Tbilisi's historic landmarks.",
-            ImageUrl = "https://images.example.test/tbilisi-old-town.jpg",
-            Duration = TimeSpan.FromHours(4),
-            Price = 85.00m,
-            MaxPassengers = 16,
-            TourType = TourType.Sightseeing,
-            IsActive = true,
-            CreatedAt = SeededAt,
-            UpdatedAt = (DateTime?)null
-        });
+    private static T SetIdentity<T>(TourFlowDbContext db, T entity, string id) where T : Entity
+    {
+        var entry = db.Entry(entity);
+        entry.Property(record => record.Id).CurrentValue = Guid.Parse(id);
+        entry.Property(record => record.CreatedAt).CurrentValue = SeededAt;
+        return entity;
+    }
 
-        modelBuilder.Entity<Booking>().HasData(new
-        {
-            Id = BookingId,
-            BookingNumber = "TF-2026-0001",
-            CustomerId,
-            TourId,
-            BookingType = BookingType.Tour,
-            BookingDate = new DateOnly(2026, 12, 5),
-            StartTime = new TimeOnly(10, 0),
-            PassengerCount = 2,
-            PickupLocation = "Freedom Square, Tbilisi",
-            DropoffLocation = "Old Town, Tbilisi",
-            SpecialRequests = "English-speaking guide requested.",
-            TotalPrice = 170.00m,
-            Status = BookingStatus.Assigned,
-            CreatedAt = SeededAt,
-            UpdatedAt = SeededAt
-        });
-
-        modelBuilder.Entity<BookingAssignment>().HasData(new
-        {
-            Id = AssignmentId,
-            BookingId,
-            DriverId,
-            VehicleId,
-            AssignmentDate = new DateOnly(2026, 12, 5),
-            StartTime = new TimeOnly(9, 45),
-            EndTime = new TimeOnly(14, 30),
-            CreatedAt = SeededAt,
-            UpdatedAt = (DateTime?)null
-        });
-
-        modelBuilder.Entity<BookingStatusHistory>().HasData(new
-        {
-            Id = HistoryId,
-            BookingId,
-            PreviousStatus = BookingStatus.Confirmed,
-            NewStatus = BookingStatus.Assigned,
-            ChangedByUserId = AdministratorUserId,
-            ChangedAt = SeededAt,
-            Comment = "Driver and vehicle assigned for the tour.",
-            CreatedAt = SeededAt,
-            UpdatedAt = (DateTime?)null
-        });
-
-        modelBuilder.Entity<Payment>().HasData(new
-        {
-            Id = PaymentId,
-            BookingId,
-            Amount = 170.00m,
-            PaymentMethod = PaymentMethod.Card,
-            Status = PaymentStatus.Paid,
-            TransactionReference = "DEMO-TF-2026-0001",
-            PaidAt = SeededAt,
-            CreatedAt = SeededAt,
-            UpdatedAt = SeededAt
-        });
+    private static ApplicationUser DemoUser(TourFlowDbContext db, string email, UserRole role, string id)
+    {
+        var user = new ApplicationUser(email, role) { Id = Guid.Parse(id), SecurityStamp = id, ConcurrencyStamp = id };
+        db.Entry(user).Property(record => record.CreatedAt).CurrentValue = SeededAt;
+        return user;
     }
 }

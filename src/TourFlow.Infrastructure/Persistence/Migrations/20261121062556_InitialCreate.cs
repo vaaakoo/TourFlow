@@ -295,60 +295,15 @@ namespace TourFlow.Infrastructure.Persistence.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.InsertData(
-                table: "ApplicationUsers",
-                columns: new[] { "Id", "CreatedAt", "Email", "Role", "UpdatedAt" },
-                values: new object[,]
-                {
-                    { new Guid("00000000-0000-0000-0000-000000000001"), new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified), "admin@tourflow.local", "Administrator", null },
-                    { new Guid("00000000-0000-0000-0000-000000000002"), new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified), "nino.beridze@tourflow.local", "Customer", null },
-                    { new Guid("00000000-0000-0000-0000-000000000003"), new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified), "giorgi.kapanadze@tourflow.local", "Driver", null }
-                });
 
-            migrationBuilder.InsertData(
-                table: "Destinations",
-                columns: new[] { "Id", "Country", "CreatedAt", "Description", "ImageUrl", "IsActive", "Name", "UpdatedAt" },
-                values: new object[] { new Guid("40000000-0000-0000-0000-000000000001"), "Georgia", new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified), "Historic capital city with old-town, cultural, and culinary experiences.", "https://images.example.test/tbilisi.jpg", true, "Tbilisi", null });
 
-            migrationBuilder.InsertData(
-                table: "Vehicles",
-                columns: new[] { "Id", "CreatedAt", "Description", "IsActive", "Name", "PassengerCapacity", "RegistrationNumber", "UpdatedAt", "VehicleType" },
-                values: new object[] { new Guid("30000000-0000-0000-0000-000000000001"), new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified), "Comfortable airport and group-transfer van.", true, "Mercedes Sprinter", 16, "TF-001-TF", null, "Van" });
 
-            migrationBuilder.InsertData(
-                table: "Customers",
-                columns: new[] { "Id", "CreatedAt", "FirstName", "LastName", "PhoneNumber", "UpdatedAt", "UserId" },
-                values: new object[] { new Guid("10000000-0000-0000-0000-000000000001"), new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified), "Nino", "Beridze", "+995555010101", null, new Guid("00000000-0000-0000-0000-000000000002") });
 
-            migrationBuilder.InsertData(
-                table: "Drivers",
-                columns: new[] { "Id", "CreatedAt", "FirstName", "IsActive", "LastName", "LicenseNumber", "PhoneNumber", "UpdatedAt", "UserId" },
-                values: new object[] { new Guid("20000000-0000-0000-0000-000000000001"), new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified), "Giorgi", true, "Kapanadze", "GE-TBL-DR-1001", "+995555020202", null, new Guid("00000000-0000-0000-0000-000000000003") });
 
-            migrationBuilder.InsertData(
-                table: "Tours",
-                columns: new[] { "Id", "CreatedAt", "Description", "DestinationId", "Duration", "ImageUrl", "IsActive", "MaxPassengers", "Name", "Price", "TourType", "UpdatedAt" },
-                values: new object[] { new Guid("50000000-0000-0000-0000-000000000001"), new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified), "A guided walking and driving introduction to Tbilisi's historic landmarks.", new Guid("40000000-0000-0000-0000-000000000001"), 144000000000L, "https://images.example.test/tbilisi-old-town.jpg", true, 16, "Tbilisi Old Town Discovery", 85.00m, "Sightseeing", null });
 
-            migrationBuilder.InsertData(
-                table: "Bookings",
-                columns: new[] { "Id", "BookingDate", "BookingNumber", "BookingType", "CreatedAt", "CustomerId", "DropoffLocation", "PassengerCount", "PickupLocation", "SpecialRequests", "StartTime", "Status", "TotalPrice", "TourId", "UpdatedAt" },
-                values: new object[] { new Guid("60000000-0000-0000-0000-000000000001"), new DateOnly(2026, 12, 5), "TF-2026-0001", "Tour", new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified), new Guid("10000000-0000-0000-0000-000000000001"), "Old Town, Tbilisi", 2, "Freedom Square, Tbilisi", "English-speaking guide requested.", new TimeOnly(10, 0, 0), "Assigned", 170.00m, new Guid("50000000-0000-0000-0000-000000000001"), new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified) });
 
-            migrationBuilder.InsertData(
-                table: "BookingAssignments",
-                columns: new[] { "Id", "AssignmentDate", "BookingId", "CreatedAt", "DriverId", "EndTime", "StartTime", "UpdatedAt", "VehicleId" },
-                values: new object[] { new Guid("70000000-0000-0000-0000-000000000001"), new DateOnly(2026, 12, 5), new Guid("60000000-0000-0000-0000-000000000001"), new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified), new Guid("20000000-0000-0000-0000-000000000001"), new TimeOnly(14, 30, 0), new TimeOnly(9, 45, 0), null, new Guid("30000000-0000-0000-0000-000000000001") });
 
-            migrationBuilder.InsertData(
-                table: "BookingStatusHistories",
-                columns: new[] { "Id", "BookingId", "ChangedAt", "ChangedByUserId", "Comment", "CreatedAt", "NewStatus", "PreviousStatus", "UpdatedAt" },
-                values: new object[] { new Guid("80000000-0000-0000-0000-000000000001"), new Guid("60000000-0000-0000-0000-000000000001"), new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified), new Guid("00000000-0000-0000-0000-000000000001"), "Driver and vehicle assigned for the tour.", new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified), "Assigned", "Confirmed", null });
 
-            migrationBuilder.InsertData(
-                table: "Payments",
-                columns: new[] { "Id", "Amount", "BookingId", "CreatedAt", "PaidAt", "PaymentMethod", "Status", "TransactionReference", "UpdatedAt" },
-                values: new object[] { new Guid("90000000-0000-0000-0000-000000000001"), 170.00m, new Guid("60000000-0000-0000-0000-000000000001"), new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified), "Card", "Paid", "DEMO-TF-2026-0001", new DateTime(2026, 11, 21, 9, 0, 0, 0, DateTimeKind.Unspecified) });
 
             migrationBuilder.CreateIndex(
                 name: "IX_ApplicationUsers_Email",
