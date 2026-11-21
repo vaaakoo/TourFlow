@@ -1,7 +1,8 @@
-using TourFlow.API.Middleware;
+using Scalar.AspNetCore;
 using TourFlow.API.Authentication;
-using TourFlow.API.Operations;
 using TourFlow.API.Backend;
+using TourFlow.API.Middleware;
+using TourFlow.API.Operations;
 using TourFlow.Application;
 using TourFlow.Infrastructure;
 using TourFlow.Infrastructure.Authentication;
@@ -26,6 +27,17 @@ app.UseAuthorization();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference();
+
+	app.UseSwaggerUI(options =>
+	{
+		options.SwaggerEndpoint(
+			"/openapi/v1.json",
+			"TourFlow API v1"
+		);
+
+		options.RoutePrefix = "swagger";
+	});
 }
 
 if (app.Environment.IsDevelopment() && app.Configuration.GetValue<bool>("AuthBootstrap:Run"))
