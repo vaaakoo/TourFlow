@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Milestone 4 — authentication, JWT, and authorization: implemented and partially verified.
+Consolidated backend phase (Milestones 1–8): implemented and verified against native SQL Server.
 
 ## Milestones completed
 
@@ -58,4 +58,43 @@ Milestone 4 — authentication, JWT, and authorization: implemented and partiall
 
 ## Next milestone (requires approval)
 
-Milestone 5 — Tours, Destinations, Customers, Vehicles and Drivers. The Milestone 4 audit passed build, design-time migration checks, and HTTP checks. Its database pass is pending live SQL Server verification. Run the three SQL-backed tests and verify a healthy database response before starting Milestone 5.
+Milestone 9 — Angular customer portal. Frontend work has not started.
+
+## Milestone 4 follow-up audit
+
+- Administrator access updates now require an explicit disabled state. An omitted field can no longer re-enable an account. Malformed HTTP request bodies retain their client-error status and receive a generic ProblemDetails response.
+- Build passed with zero warnings and errors. Three unit tests and 20 HTTP integration tests passed. Coverage includes all five roles on the administrator route, JWT issuer, audience, signature, expiry, server-side session rejection, profile ownership, malformed requests, OpenAPI, and unhealthy database readiness.
+- EF found no pending model changes. The audit requires no new migration.
+- Neither Docker context can reach its engine. No local SQL Server listener or configured `TOURFLOW_TEST_SQLSERVER` connection is available. Three SQL-backed tests were skipped. Live migrations and seed replay, registration and login, session rotation and concurrent replay, and healthy database readiness remain pending.
+
+### Live SQL Server follow-up
+
+- Native SQL Server accepted Windows authentication. All three SQL-backed authentication tests passed against isolated `TourFlowTest_*` databases, including migration and seed reapplication, registration and login, account restrictions, token rotation, concurrent replay, and logout.
+- The running API returned HTTP 200 from `/health` against a migrated test database. This validation used no Docker or WSL.
+
+## Milestone 5 implementation and validation
+
+- Added MediatR requests and handlers for destinations, tours, customers, vehicles, and drivers. FluentValidation checks inputs, filter ranges, page bounds, and each module's supported sort fields. SQL Server applies search, filters, sorting, paging, and DTO projections.
+- Added public catalogue listing and detail routes with active-only visibility, manager/administrator writes, staff customer management, JWT-scoped customer self-service, and staff vehicle and driver directories. Driver profile creation uses an existing eligible Identity account. Authentication profiles use the active role to distinguish a driver profile from any retained customer history.
+- Added deactivation endpoints that preserve referenced records, SQL-backed uniqueness handling, vehicle capacity protection for active assignments, and read-only vehicle and driver availability checks.
+- Reused existing tables, constraints, and indexes. EF found no pending model changes. Existing migrations and seed replay were exercised on isolated local SQL Server databases.
+- Solution build passed with zero warnings and errors. Ten unit tests and 28 integration tests passed, with zero skipped. The integration suite exercised both authentication regressions and the five new modules, including authorization, filtering, pagination, uniqueness, profile isolation, availability, OpenAPI, and health.
+
+## Milestones 6–8 — completed backend
+
+- Implemented customer and staff booking creation, detail/history, operational search/filter/sort/pagination, itinerary updates, cancellation, confirmation, rejection, and explicit status transitions. Tour prices use the current server-side per-passenger price. Transfer prices use configurable server-side base and per-passenger rates; the default development currency is USD.
+- Added SQL Server `rowversion` optimistic concurrency for booking writes. Clients return the opaque base64 `version` value when updating itineraries, status, or assignments. Stale writes return HTTP 409.
+- Enforced booking ownership from JWT identity claims. Customers see and modify only their own eligible bookings; operators have operational booking authority; managers and administrators assign resources; drivers see their own assignments and may only start or complete their assigned trips.
+- Implemented transactional assignment, reassignment, and cancellation. SQL Server application locks and serializable overlap checks prevent concurrent driver/vehicle conflicts. Capacity and active-resource rules are enforced. Superseded assignments remain as inactive history.
+- Booking status history is append-only and records actor, UTC timestamp, previous/new states, and comments. Assignment and cancellation workflows create lifecycle history through the aggregate.
+- Implemented internal payment records, payment search/history, ISO currency and amount validation, booking-total limits, unique transaction references, and explicit pending-to-paid/failed and paid-to-refunded transitions. No gateway or card data is stored.
+- Added management dashboard totals, status counts, revenue, recent bookings, popular tours, active resources, and upcoming assignments. Added date-ranged booking, revenue, driver assignment, and vehicle utilization reports using SQL projections and aggregation.
+- Added migration `CompleteBackendOperations` for booking row versions, payment currency, and retained assignment cancellation state. Existing payment and assignment rows are safely backfilled to `USD` and active respectively. No data reset is required.
+- Native SQL Server verification applies every migration twice in isolated databases and exercises seeding, auth regressions, booking ownership and server pricing, stale writes, assignment overlap/history, driver status permissions, payment consistency, reports, OpenAPI, and health. Final verification: build 0 warnings/0 errors; 15 unit tests and 32 integration tests passed; 0 skipped; EF Core reported no pending model changes.
+
+## Backend limitations and boundaries
+
+- Transfer pricing is an internal configurable formula (`BookingPricing:TransferBasePrice`, `TransferPerPassenger`, and `Currency`), not a distance-based quote engine.
+- Payments are simulated operational records only. There is no payment gateway and no cardholder data.
+- Assignment intervals are same-day half-open ranges. Multi-day scheduling and route/travel-time optimization are outside the current specification.
+- Reports return current aggregate rows and do not provide exports or accounting/tax reconciliation.

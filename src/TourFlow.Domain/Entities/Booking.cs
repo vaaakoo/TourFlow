@@ -91,6 +91,9 @@ public sealed class Booking : Entity
     /// <summary>Gets the current booking lifecycle status.</summary>
     public BookingStatus Status { get; private set; }
 
+    /// <summary>Gets the SQL Server concurrency token used to reject stale writes.</summary>
+    public byte[] Version { get; private set; } = [];
+
     /// <summary>Gets assignments made to fulfil this booking.</summary>
     public IReadOnlyCollection<BookingAssignment> Assignments => _assignments.AsReadOnly();
 
@@ -146,6 +149,16 @@ public sealed class Booking : Entity
         DropoffLocation = string.IsNullOrWhiteSpace(dropoffLocation) ? null : dropoffLocation.Trim();
         SpecialRequests = string.IsNullOrWhiteSpace(specialRequests) ? null : specialRequests.Trim();
         Touch();
+    }
+
+    /// <summary>Updates mutable itinerary data and its server-calculated price atomically.</summary>
+    public void UpdateItineraryAndPrice(
+        DateOnly bookingDate, TimeOnly startTime, int passengerCount, string pickupLocation,
+        string? dropoffLocation, string? specialRequests, decimal totalPrice)
+    {
+        UpdateItinerary(bookingDate, startTime, passengerCount, pickupLocation, dropoffLocation, specialRequests);
+        if (Tour is not null) Tour.EnsureCanAccept(passengerCount);
+        SetTotalPrice(totalPrice);
     }
 
     /// <summary>Moves the booking through a supported lifecycle transition and records it.</summary>
@@ -222,7 +235,7 @@ public sealed class Booking : Entity
 
     private void EnsureCanModify()
     {
-        if (Status is BookingStatus.Cancelled or BookingStatus.Completed or BookingStatus.Rejected)
+        if (Status is not (BookingStatus.Pending or BookingStatus.Confirmed))
         {
             throw new DomainException($"A booking with status '{Status}' cannot be modified.");
         }
@@ -244,6 +257,7 @@ public sealed class Booking : Entity
         (BookingStatus.Confirmed, BookingStatus.Assigned) => true,
         (BookingStatus.Confirmed, BookingStatus.Cancelled) => true,
         (BookingStatus.Assigned, BookingStatus.InProgress) => true,
+        (BookingStatus.Assigned, BookingStatus.Confirmed) => true,
         (BookingStatus.Assigned, BookingStatus.Cancelled) => true,
         (BookingStatus.InProgress, BookingStatus.Completed) => true,
         _ => false

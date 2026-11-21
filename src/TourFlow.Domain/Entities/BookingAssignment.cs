@@ -69,4 +69,21 @@ public sealed class BookingAssignment : Entity
 
     /// <summary>Gets the scheduled end time.</summary>
     public TimeOnly EndTime { get; private set; }
+
+    /// <summary>Gets whether this assignment is the current operational assignment.</summary>
+    public bool IsActive { get; private set; } = true;
+
+    /// <summary>Gets when this assignment was superseded or cancelled.</summary>
+    public DateTime? CancelledAt { get; private set; }
+
+    /// <summary>Cancels this assignment while retaining its operational history.</summary>
+    public void Cancel(DateTime? utcNow = null)
+    {
+        if (!IsActive) throw new DomainException("The assignment is already inactive.");
+        var timestamp = utcNow ?? DateTime.UtcNow;
+        if (timestamp.Kind != DateTimeKind.Utc) throw new DomainException("Assignment timestamps must be UTC.");
+        IsActive = false;
+        CancelledAt = timestamp;
+        Touch(timestamp);
+    }
 }

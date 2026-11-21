@@ -133,6 +133,7 @@ internal sealed class BookingConfiguration : IEntityTypeConfiguration<Booking>
         builder.Property(booking => booking.DropoffLocation).HasMaxLength(500);
         builder.Property(booking => booking.SpecialRequests).HasMaxLength(2000);
         builder.Property(booking => booking.TotalPrice).HasPrecision(18, 2).IsRequired();
+        builder.Property(booking => booking.Version).IsRowVersion();
         builder.HasIndex(booking => booking.BookingNumber).IsUnique();
         builder.HasIndex(booking => new { booking.BookingDate, booking.Status });
         builder.HasIndex(booking => booking.CustomerId);
@@ -155,6 +156,7 @@ internal sealed class BookingAssignmentConfiguration : IEntityTypeConfiguration<
         builder.Property(assignment => assignment.AssignmentDate).HasColumnType("date").IsRequired();
         builder.Property(assignment => assignment.StartTime).HasColumnType("time(0)").IsRequired();
         builder.Property(assignment => assignment.EndTime).HasColumnType("time(0)").IsRequired();
+        builder.Property(assignment => assignment.CancelledAt).HasColumnType("datetime2").HasConversion(UtcDateTimeConverter.NullableInstance);
         builder.HasIndex(assignment => assignment.BookingId);
         builder.HasIndex(assignment => new { assignment.DriverId, assignment.AssignmentDate, assignment.StartTime, assignment.EndTime });
         builder.HasIndex(assignment => new { assignment.VehicleId, assignment.AssignmentDate, assignment.StartTime, assignment.EndTime });
@@ -186,6 +188,7 @@ internal sealed class PaymentConfiguration : IEntityTypeConfiguration<Payment>
         builder.Property(payment => payment.Amount).HasPrecision(18, 2).IsRequired();
         builder.Property(payment => payment.PaymentMethod).HasConversion<string>().HasMaxLength(32).IsRequired();
         builder.Property(payment => payment.Status).HasConversion<string>().HasMaxLength(16).IsRequired();
+        builder.Property(payment => payment.Currency).HasMaxLength(3).IsUnicode(false).IsRequired();
         builder.Property(payment => payment.TransactionReference).HasMaxLength(128);
         builder.Property(payment => payment.PaidAt).HasColumnType("datetime2").HasConversion(UtcDateTimeConverter.NullableInstance);
         builder.HasIndex(payment => payment.BookingId);

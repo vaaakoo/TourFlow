@@ -58,6 +58,8 @@ public sealed class Destination : Entity
         Touch();
     }
 
+    internal void RemoveTour(Tour tour) => _tours.Remove(tour);
+
     internal void AddTour(Tour tour)
     {
         ArgumentNullException.ThrowIfNull(tour);

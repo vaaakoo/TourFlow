@@ -61,7 +61,7 @@ internal static class AuthConfiguration
 
         var origins = config.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
         services.AddCors(options => options.AddDefaultPolicy(policy => policy.WithOrigins(origins)
-            .WithMethods("GET", "POST", "PUT").WithHeaders("Authorization", "Content-Type")));
+            .WithMethods("GET", "POST", "PUT", "DELETE").WithHeaders("Authorization", "Content-Type")));
         services.AddRateLimiter(options =>
         {
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;

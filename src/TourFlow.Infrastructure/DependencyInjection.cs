@@ -6,7 +6,9 @@ using TourFlow.Infrastructure.Persistence;
 using TourFlow.Infrastructure.Persistence.Seeding;
 using TourFlow.Infrastructure.Authentication;
 using TourFlow.Application.Authentication;
+using TourFlow.Application.Operations;
 using TourFlow.Domain.Entities;
+using TourFlow.Application.Backend;
 
 namespace TourFlow.Infrastructure;
 
@@ -40,10 +42,19 @@ public static class DependencyInjection
             options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
         }).AddRoles<IdentityRole<Guid>>().AddEntityFrameworkStores<TourFlowDbContext>().AddDefaultTokenProviders();
         services.AddDataProtection();
+        services.AddOptions<BookingPricingOptions>().Bind(configuration.GetSection("BookingPricing"))
+            .Validate(value => value.TransferBasePrice >= 0 && value.TransferPerPassenger >= 0 &&
+                value.Currency.Length == 3 && value.Currency.All(char.IsLetter), "Booking pricing configuration is invalid.")
+            .ValidateOnStart();
         services.Configure<DataProtectionTokenProviderOptions>(options => options.TokenLifespan = TimeSpan.FromMinutes(30));
         services.AddScoped<IAccounts, AccountService>();
         services.AddScoped<ISessions, SessionService>();
         services.AddSingleton<IPasswordResetDelivery, DisabledPasswordResetDelivery>();
+        services.AddMediatR(options =>
+        {
+            options.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly);
+            options.AddOpenBehavior(typeof(ValidateRequest<,>));
+        });
         return services;
     }
 }

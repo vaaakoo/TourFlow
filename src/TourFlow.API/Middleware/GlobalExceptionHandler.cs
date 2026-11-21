@@ -1,5 +1,8 @@
+using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using TourFlow.Application.Operations;
+using TourFlow.Domain.Exceptions;
 
 namespace TourFlow.API.Middleware;
 
@@ -14,17 +17,49 @@ public sealed partial class GlobalExceptionHandler(
         Exception exception,
         CancellationToken cancellationToken)
     {
-        LogUnhandledException(logger, exception, httpContext.Request.Path);
+        var status = StatusCodes.Status500InternalServerError;
+        var title = "An unexpected error occurred.";
+        ProblemDetails? validationProblem = null;
+        if (exception is ValidationException validation)
+        {
+            status = StatusCodes.Status400BadRequest;
+            var errors = validation.Errors.GroupBy(error => error.PropertyName)
+                .ToDictionary(group => group.Key, group => group.Select(error => error.ErrorMessage).Distinct().ToArray());
+            validationProblem = new ValidationProblemDetails(errors) { Status = status };
+        }
+        else if (exception is OperationConflictException)
+        {
+            status = StatusCodes.Status409Conflict;
+            title = exception.Message;
+        }
+        else if (exception is OperationForbiddenException)
+        {
+            status = StatusCodes.Status403Forbidden;
+            title = exception.Message;
+        }
+        else if (exception is DomainException)
+        {
+            status = StatusCodes.Status400BadRequest;
+            title = exception.Message;
+        }
+        else if (exception is BadHttpRequestException { StatusCode: >= 400 and < 500 } badRequest)
+        {
+            status = badRequest.StatusCode;
+            title = "The request could not be read.";
+        }
+        else
+        {
+            LogUnhandledException(logger, exception, httpContext.Request.Path);
+        }
 
-        httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        httpContext.Response.StatusCode = status;
         return await problemDetailsService.TryWriteAsync(new ProblemDetailsContext
         {
             HttpContext = httpContext,
-            Exception = exception,
-            ProblemDetails = new ProblemDetails
+            ProblemDetails = validationProblem ?? new ProblemDetails
             {
-                Status = StatusCodes.Status500InternalServerError,
-                Title = "An unexpected error occurred."
+                Status = status,
+                Title = title
             }
         });
     }

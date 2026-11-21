@@ -39,10 +39,11 @@ internal sealed class AccountService(
         var user = await db.Users.Include(account => account.Customer).Include(account => account.Driver)
             .SingleOrDefaultAsync(account => account.Id == id, cancellationToken);
         if (user is null) return null;
-        if (user.Customer is not null)
-            user.Customer.UpdateProfile(request.FirstName, request.LastName, request.PhoneNumber);
-        else if (user.Driver is not null)
+        var roles = await users.GetRolesAsync(user);
+        if (roles.Contains("DRIVER") && user.Driver is not null)
             user.Driver.UpdateProfile(request.FirstName, request.LastName, request.PhoneNumber, user.Driver.LicenseNumber);
+        else if (roles.Contains("CUSTOMER") && user.Customer is not null)
+            user.Customer.UpdateProfile(request.FirstName, request.LastName, request.PhoneNumber);
         else
         {
             user.UpdateStaffName(request.FirstName, request.LastName);
@@ -50,7 +51,7 @@ internal sealed class AccountService(
         }
 
         await db.SaveChangesAsync(cancellationToken);
-        return ToProfile(user, user.Customer, user.Driver, await users.GetRolesAsync(user));
+        return ToProfile(user, user.Customer, user.Driver, roles);
     }
 
     public async Task RequestResetAsync(ForgotPasswordRequest request, CancellationToken cancellationToken)
@@ -109,9 +110,10 @@ internal sealed class AccountService(
 
         var currentRoles = await users.GetRolesAsync(user);
         var requestedRole = request.Role ?? throw new ArgumentException("A role is required.", nameof(request));
+        var disableAccount = request.IsDisabled ?? throw new ArgumentException("An explicit disabled state is required.", nameof(request));
         var roleName = requestedRole.ToString().ToUpperInvariant();
         if (currentRoles.Contains("ADMINISTRATOR") && !user.IsDisabled && user.PasswordHash is not null &&
-            (request.IsDisabled || request.Role != UserRole.Administrator))
+            (disableAccount || requestedRole != UserRole.Administrator))
         {
             var now = DateTimeOffset.UtcNow;
             var anotherAdministrator = await (from account in db.Users
@@ -127,7 +129,7 @@ internal sealed class AccountService(
         if (removed.Length > 0) EnsureSucceeded(await users.RemoveFromRolesAsync(user, removed));
         if (!currentRoles.Contains(roleName)) EnsureSucceeded(await users.AddToRoleAsync(user, roleName));
         user.ChangeRole(requestedRole);
-        user.SetDisabled(request.IsDisabled);
+        user.SetDisabled(disableAccount);
         EnsureSucceeded(await users.UpdateSecurityStampAsync(user));
         await SessionService.RevokeAsync(db, user.Id, null, DateTime.UtcNow, cancellationToken);
         await transaction.CommitAsync(cancellationToken);
@@ -146,10 +148,15 @@ internal sealed class AccountService(
     private static AccountValidationException InvalidReset() =>
         new(new Dictionary<string, string[]> { ["reset"] = ["The password reset could not be completed."] });
 
-    private static UserProfile ToProfile(ApplicationUser user, Customer? customer, Driver? driver, IEnumerable<string> roles) =>
-        new(user.Id, user.Email!, customer?.FirstName ?? driver?.FirstName ?? user.StaffFirstName,
-            customer?.LastName ?? driver?.LastName ?? user.StaffLastName,
-            customer?.PhoneNumber ?? driver?.PhoneNumber ?? user.PhoneNumber, roles.ToArray(), user.IsDisabled);
+    private static UserProfile ToProfile(ApplicationUser user, Customer? customer, Driver? driver, IEnumerable<string> roles)
+    {
+        var assignedRoles = roles.ToArray();
+        if (assignedRoles.Contains("DRIVER") && driver is not null)
+            return new(user.Id, user.Email!, driver.FirstName, driver.LastName, driver.PhoneNumber, assignedRoles, user.IsDisabled);
+        if (assignedRoles.Contains("CUSTOMER") && customer is not null)
+            return new(user.Id, user.Email!, customer.FirstName, customer.LastName, customer.PhoneNumber, assignedRoles, user.IsDisabled);
+        return new(user.Id, user.Email!, user.StaffFirstName, user.StaffLastName, user.PhoneNumber, assignedRoles, user.IsDisabled);
+    }
 }
 
 internal sealed class DisabledPasswordResetDelivery : IPasswordResetDelivery

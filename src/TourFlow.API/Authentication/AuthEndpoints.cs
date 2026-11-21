@@ -71,6 +71,7 @@ internal sealed class AccountErrors : IEndpointFilter
                 ResetPasswordRequest request when !ValidEmail(request.Email) || !HasLength(request.Token, 4096) ||
                     request.NewPassword is null || request.NewPassword.Length is < 12 or > 128 => Invalid("reset"),
                 UserAccessUpdate request when request.Role is null || !Enum.IsDefined(request.Role.Value) => Invalid("role"),
+                UserAccessUpdate request when request.IsDisabled is null => Invalid("isDisabled"),
                 _ => null
             };
             if (errors is { Count: > 0 }) return Results.ValidationProblem(errors);

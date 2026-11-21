@@ -158,7 +158,7 @@ public sealed class SqlServerAuthenticationTests
         return pair;
     }
 
-    private sealed class SqlServerApp : WebApplicationFactory<Program>
+    internal sealed class SqlServerApp : WebApplicationFactory<Program>
     {
         private readonly SqlConnectionStringBuilder connection = new(Environment.GetEnvironmentVariable("TOURFLOW_TEST_SQLSERVER"))
         {
@@ -172,6 +172,8 @@ public sealed class SqlServerAuthenticationTests
             builder.UseSetting("Jwt:SigningKey", Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)));
             builder.UseSetting("AuthBootstrap:Run", "false");
             builder.UseSetting("DevelopmentData:Enabled", "true");
+            builder.UseSetting("Logging:LogLevel:Default", "Warning");
+            builder.UseSetting("Logging:LogLevel:Microsoft.AspNetCore", "Warning");
         }
 
         internal async Task InitializeAsync()

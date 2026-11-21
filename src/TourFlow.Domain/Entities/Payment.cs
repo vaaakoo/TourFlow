@@ -12,7 +12,7 @@ public sealed class Payment : Entity
         Booking = null!;
     }
 
-    public Payment(Booking booking, decimal amount, PaymentMethod paymentMethod)
+    public Payment(Booking booking, decimal amount, PaymentMethod paymentMethod, string currency = "USD")
     {
         if (amount <= 0)
         {
@@ -23,6 +23,7 @@ public sealed class Payment : Entity
         BookingId = booking.Id;
         Amount = amount;
         PaymentMethod = paymentMethod;
+        Currency = NormalizeCurrency(currency);
         Status = PaymentStatus.Pending;
         booking.AddPayment(this);
     }
@@ -41,6 +42,9 @@ public sealed class Payment : Entity
 
     /// <summary>Gets the payment processing status.</summary>
     public PaymentStatus Status { get; private set; }
+
+    /// <summary>Gets the ISO 4217 currency code for this internal payment record.</summary>
+    public string Currency { get; private set; } = null!;
 
     /// <summary>Gets the optional simulated transaction reference.</summary>
     public string? TransactionReference { get; private set; }
@@ -95,5 +99,13 @@ public sealed class Payment : Entity
 
         Status = PaymentStatus.Refunded;
         Touch();
+    }
+
+    private static string NormalizeCurrency(string currency)
+    {
+        var value = currency?.Trim().ToUpperInvariant();
+        if (value is null || value.Length != 3 || value.Any(character => character is < 'A' or > 'Z'))
+            throw new DomainException("Currency must be a three-letter ISO code.");
+        return value;
     }
 }

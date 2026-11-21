@@ -99,6 +99,17 @@ public sealed class Tour : Entity
         Touch();
     }
 
+    public void MoveTo(Destination destination)
+    {
+        ArgumentNullException.ThrowIfNull(destination);
+        if (DestinationId == destination.Id) return;
+        Destination?.RemoveTour(this);
+        Destination = destination;
+        DestinationId = destination.Id;
+        destination.AddTour(this);
+        Touch();
+    }
+
     internal void EnsureCanAccept(int passengerCount)
     {
         if (!IsActive)

@@ -1,5 +1,7 @@
 using TourFlow.API.Middleware;
 using TourFlow.API.Authentication;
+using TourFlow.API.Operations;
+using TourFlow.API.Backend;
 using TourFlow.Application;
 using TourFlow.Infrastructure;
 using TourFlow.Infrastructure.Authentication;
@@ -36,6 +38,8 @@ if (app.Environment.IsDevelopment() && app.Configuration.GetValue<bool>("AuthBoo
 }
 
 app.MapTourFlowAccounts();
+app.MapOperations();
+app.MapBackend();
 app.MapHealthChecks("/health").AllowAnonymous();
 app.MapGet("/", () => Results.Ok(new { name = "TourFlow API", status = "running" }))
     .AllowAnonymous();

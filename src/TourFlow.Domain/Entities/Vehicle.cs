@@ -68,6 +68,12 @@ public sealed class Vehicle : Entity
         Touch();
     }
 
+    public void ChangeRegistration(string registrationNumber)
+    {
+        RegistrationNumber = RequireValue(registrationNumber, nameof(registrationNumber));
+        Touch();
+    }
+
     internal void EnsureAssignableFor(int passengerCount)
     {
         if (!IsActive)

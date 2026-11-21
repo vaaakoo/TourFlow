@@ -9,7 +9,7 @@ public sealed record RefreshRequest(string RefreshToken);
 public sealed record ProfileUpdate(string FirstName, string LastName, string PhoneNumber);
 public sealed record ForgotPasswordRequest(string Email);
 public sealed record ResetPasswordRequest(string Email, string Token, string NewPassword);
-public sealed record UserAccessUpdate(UserRole? Role, bool IsDisabled);
+public sealed record UserAccessUpdate(UserRole? Role, bool? IsDisabled);
 public sealed record UserProfile(Guid Id, string Email, string? FirstName, string? LastName, string? PhoneNumber, string[] Roles, bool IsDisabled);
 public sealed record TokenPair(string AccessToken, string RefreshToken, DateTime ExpiresAt);
 
