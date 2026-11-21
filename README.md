@@ -2,15 +2,15 @@
 
 TourFlow is a portfolio-grade booking and operations platform for tour operators and airport transfer companies. It is being delivered incrementally using Clean Architecture and a modular-monolith design.
 
-## Milestone 1 scope
+## Current scope
 
-The solution foundation is in place: backend project boundaries, dependency injection composition, SQL Server development configuration, OpenAPI, global error handling, and health checks. Business entities, identity, booking workflows, and the Angular application are deliberately deferred to their scheduled milestones.
+Milestones 1 and 2 are complete: the solution foundation and pure Domain model are in place. The Domain layer contains the TourFlow entities, value enums, entity relationships, and core booking/assignment/payment rules. EF Core mappings, Identity configuration, APIs, and user interfaces remain deliberately deferred to their scheduled milestones.
 
 ## Architecture
 
 See [the architecture diagram](docs/architecture/overview.md). The backend projects are:
 
-- `src/TourFlow.Domain` — business model and rules (empty foundation in this milestone).
+- `src/TourFlow.Domain` — business entities, enums, relationships, exceptions, and domain rules.
 - `src/TourFlow.Application` — use cases and application contracts.
 - `src/TourFlow.Infrastructure` — EF Core/SQL Server technical implementation.
 - `src/TourFlow.API` — HTTP composition root.
@@ -46,7 +46,7 @@ The health endpoint is `GET /health`; the development OpenAPI document is availa
 
 ## Database design
 
-The planned model is captured in [the Mermaid ER diagram](docs/database/er-diagram.md). Entities and migrations will begin in Milestone 2/3.
+The implemented model and Milestone 3 persistence decisions are captured in [the Mermaid ER diagram](docs/database/er-diagram.md). EF Core entity configurations and migrations begin in Milestone 3.
 
 ## Testing
 
