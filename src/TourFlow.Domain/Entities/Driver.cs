@@ -8,6 +8,15 @@ public sealed class Driver : Entity
 {
     private readonly List<BookingAssignment> _assignments = [];
 
+    private Driver()
+    {
+        User = null!;
+        FirstName = null!;
+        LastName = null!;
+        PhoneNumber = null!;
+        LicenseNumber = null!;
+    }
+
     public Driver(
         ApplicationUser user,
         string firstName,

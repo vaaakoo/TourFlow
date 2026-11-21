@@ -8,6 +8,14 @@ public sealed class Customer : Entity
 {
     private readonly List<Booking> _bookings = [];
 
+    private Customer()
+    {
+        User = null!;
+        FirstName = null!;
+        LastName = null!;
+        PhoneNumber = null!;
+    }
+
     public Customer(ApplicationUser user, string firstName, string lastName, string phoneNumber)
     {
         User = user ?? throw new ArgumentNullException(nameof(user));

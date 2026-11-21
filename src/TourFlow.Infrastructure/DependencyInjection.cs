@@ -17,6 +17,7 @@ public static class DependencyInjection
             ?? throw new InvalidOperationException("Connection string 'TourFlowDatabase' is not configured.");
 
         services.AddDbContext<TourFlowDbContext>(options => options.UseSqlServer(connectionString));
+        services.AddHealthChecks().AddDbContextCheck<TourFlowDbContext>("sqlserver");
         return services;
     }
 }

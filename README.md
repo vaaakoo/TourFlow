@@ -46,7 +46,19 @@ The health endpoint is `GET /health`; the development OpenAPI document is availa
 
 ## Database design
 
-The implemented model and Milestone 3 persistence decisions are captured in [the Mermaid ER diagram](docs/database/er-diagram.md). EF Core entity configurations and migrations begin in Milestone 3.
+The implemented model and SQL Server design decisions are captured in [the Mermaid ER diagram](docs/database/er-diagram.md). The initial EF Core migration includes deterministic local demo data for a destination, tour, vehicle, customer, driver, booking, assignment, status history, and payment. It does not create authentication credentials; Identity authentication setup is scheduled for Milestone 4.
+
+### EF Core migrations
+
+Restore the repository-local EF Core tool and apply the initial schema after SQL Server is running:
+
+```powershell
+dotnet tool restore
+$env:ConnectionStrings__TourFlowDatabase = "Server=localhost,1433;Database=TourFlow;User Id=sa;Password=$env:TOURFLOW_SQL_PASSWORD;TrustServerCertificate=True;Encrypt=False"
+dotnet tool run dotnet-ef database update --project src/TourFlow.Infrastructure --startup-project src/TourFlow.API --context TourFlowDbContext
+```
+
+Use the same command shape to add future migrations, replacing `database update` with `migrations add <Name>`. The `/health` endpoint includes a SQL Server DbContext check and returns unhealthy when the database cannot be reached.
 
 ## Testing
 

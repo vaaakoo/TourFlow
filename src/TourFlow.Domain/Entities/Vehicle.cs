@@ -9,6 +9,12 @@ public sealed class Vehicle : Entity
 {
     private readonly List<BookingAssignment> _assignments = [];
 
+    private Vehicle()
+    {
+        Name = null!;
+        RegistrationNumber = null!;
+    }
+
     public Vehicle(
         string name,
         string registrationNumber,

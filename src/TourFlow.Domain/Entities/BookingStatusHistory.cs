@@ -7,6 +7,11 @@ namespace TourFlow.Domain.Entities;
 /// <summary>Records an immutable booking status transition.</summary>
 public sealed class BookingStatusHistory : Entity
 {
+    private BookingStatusHistory()
+    {
+        Booking = null!;
+    }
+
     internal BookingStatusHistory(
         Booking booking,
         BookingStatus previousStatus,

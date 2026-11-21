@@ -8,6 +8,12 @@ public sealed class Destination : Entity
 {
     private readonly List<Tour> _tours = [];
 
+    private Destination()
+    {
+        Name = null!;
+        Country = null!;
+    }
+
     public Destination(string name, string country, string? description = null, string? imageUrl = null)
     {
         Name = RequireValue(name, nameof(name));

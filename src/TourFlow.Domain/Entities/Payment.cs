@@ -7,6 +7,11 @@ namespace TourFlow.Domain.Entities;
 /// <summary>Represents a simulated payment record for a booking.</summary>
 public sealed class Payment : Entity
 {
+    private Payment()
+    {
+        Booking = null!;
+    }
+
     public Payment(Booking booking, decimal amount, PaymentMethod paymentMethod)
     {
         if (amount <= 0)

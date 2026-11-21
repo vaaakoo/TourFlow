@@ -1,6 +1,6 @@
 # Domain database design
 
-This diagram reflects the Milestone 2 domain model. EF Core mappings, indexes, delete behavior, migrations, and database constraints will be implemented in Milestone 3.
+This diagram reflects the EF Core schema implemented in Milestone 3. The initial migration is `InitialCreate`; it includes deterministic development data but no authentication credentials.
 
 ```mermaid
 erDiagram
@@ -73,11 +73,12 @@ erDiagram
     }
 ```
 
-## Design decisions for Milestone 3
+## Implemented database design
 
-- All primary keys are generated `Guid` values. Every entity inherits UTC `CreatedAt`; mutable entities also retain `UpdatedAt`.
+- All primary keys are application-generated `Guid` values. Every entity inherits UTC `CreatedAt`; mutable entities also retain `UpdatedAt`. EF Core converters restore `DateTimeKind.Utc` when SQL Server `datetime2` values are read.
 - `Booking.TourId` is nullable only for `Transfer` bookings. A `Tour` booking requires a tour at the domain level.
-- Required unique constraints: `ApplicationUser.Email`, `Customer.UserId`, `Driver.UserId`, `Driver.LicenseNumber`, `Vehicle.RegistrationNumber`, `Booking.BookingNumber`, and `RefreshToken.TokenHash`.
-- Required operational indexes include booking lookups by customer/date/status and assignment lookups by driver/date/time and vehicle/date/time. These indexes support the later overlap checks but cannot alone enforce interval overlap prevention.
-- Deleting a booking should cascade only to its status history, payments, and assignments. Customers, tours, drivers, vehicles, destinations, and users must be protected from deletion while operational records reference them.
-- Monetary values (`Tour.Price`, `Booking.TotalPrice`, and `Payment.Amount`) will use SQL Server `decimal(18,2)`. Timestamps are stored as UTC; `DateOnly` and `TimeOnly` represent business schedules.
+- Unique constraints are implemented for `ApplicationUser.Email`, `Customer.UserId`, `Driver.UserId`, `Driver.LicenseNumber`, `Vehicle.RegistrationNumber`, `Booking.BookingNumber`, `Payment.TransactionReference` when present, and `RefreshToken.TokenHash`.
+- Operational indexes are implemented for active tour/destination filters, customer booking history, booking date/status, and driver/vehicle assignment schedules. The scheduling indexes support overlap queries; interval-overlap enforcement remains an application/database transaction concern for a later operational milestone.
+- Deleting a booking cascades only to its status history, payments, and assignments. Customers, tours, drivers, vehicles, destinations, users, and status-change actors are protected from deletion while referenced.
+- Monetary values (`Tour.Price`, `Booking.TotalPrice`, and `Payment.Amount`) use SQL Server `decimal(18,2)`. `DateOnly` and `TimeOnly` are stored as `date` and `time(0)`; tour duration is stored as ticks in `bigint` to avoid SQL Server's 24-hour `time` limit.
+- The Domain entities contain private materialization constructors only; public constructors and behaviors continue to enforce domain invariants.

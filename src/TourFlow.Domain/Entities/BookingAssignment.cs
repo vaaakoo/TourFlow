@@ -6,6 +6,13 @@ namespace TourFlow.Domain.Entities;
 /// <summary>Connects a booking with the driver and vehicle assigned to fulfil it.</summary>
 public sealed class BookingAssignment : Entity
 {
+    private BookingAssignment()
+    {
+        Booking = null!;
+        Driver = null!;
+        Vehicle = null!;
+    }
+
     public BookingAssignment(
         Booking booking,
         Driver driver,

@@ -6,6 +6,12 @@ namespace TourFlow.Domain.Entities;
 /// <summary>Represents a persisted refresh-token record. Token issuance and rotation are implemented later.</summary>
 public sealed class RefreshToken : Entity
 {
+    private RefreshToken()
+    {
+        User = null!;
+        TokenHash = null!;
+    }
+
     public RefreshToken(ApplicationUser user, string tokenHash, DateTime expiresAt)
     {
         if (string.IsNullOrWhiteSpace(tokenHash))

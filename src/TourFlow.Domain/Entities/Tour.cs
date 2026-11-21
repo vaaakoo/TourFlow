@@ -9,6 +9,13 @@ public sealed class Tour : Entity
 {
     private readonly List<Booking> _bookings = [];
 
+    private Tour()
+    {
+        Name = null!;
+        Description = null!;
+        Destination = null!;
+    }
+
     public Tour(
         Destination destination,
         string name,

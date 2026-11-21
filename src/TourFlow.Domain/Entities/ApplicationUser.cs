@@ -9,6 +9,11 @@ public sealed class ApplicationUser : Entity
 {
     private readonly List<RefreshToken> _refreshTokens = [];
 
+    private ApplicationUser()
+    {
+        Email = null!;
+    }
+
     public ApplicationUser(string email, UserRole role)
     {
         Email = RequireValue(email, nameof(email));

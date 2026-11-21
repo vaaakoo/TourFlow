@@ -11,6 +11,13 @@ public sealed class Booking : Entity
     private readonly List<BookingStatusHistory> _statusHistory = [];
     private readonly List<Payment> _payments = [];
 
+    private Booking()
+    {
+        BookingNumber = null!;
+        Customer = null!;
+        PickupLocation = null!;
+    }
+
     public Booking(
         Customer customer,
         string bookingNumber,
